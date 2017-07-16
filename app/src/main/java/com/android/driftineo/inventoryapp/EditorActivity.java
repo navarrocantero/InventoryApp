@@ -37,7 +37,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         setContentView(R.layout.activity_editor);
         Intent intent = getIntent();
 
-         currentProductUri = intent.getData();
+        currentProductUri = intent.getData();
 
         nameEditText = (EditText) findViewById(R.id.productNameEdit);
         quantityText = (EditText) findViewById(R.id.productQuantityEdit);
@@ -48,30 +48,20 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             title = getString(R.string.activity_add_product);
         } else {
             setTitle(getString(R.string.activity_editor));
-            nameEditText.setText(getString(R.string.activity_editor));
-            quantityText.setText(getString(R.string.activity_editor));
-            priceText.setText(getString(R.string.activity_editor));
-
             title = getString(R.string.activity_editor);
 
-//            Cursor cursor = getContentResolver().query(currentProductUri, null, null, null, null);
-//            try {
-//                int nameColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME);
-//                int quantityColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
-//                int priceColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE);
-//
-//                String name = cursor.getString(nameColumnIndex);
-//                String quantity = cursor.getString(quantityColumnIndex);
-//                String price = cursor.getString(priceColumnIndex);
-//
-//                nameEditText.setText(name);
-//                quantityText.setText(quantity);
-//                priceText.setText(price);
-//            } catch (CursorIndexOutOfBoundsException e) {
-//            }
-//            finally {
-//                cursor.close();
-//            }
+            Cursor cursor = getContentResolver().query(currentProductUri, null, null, null, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+
+                String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
+                String quantity = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY));
+                String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
+                nameEditText.setText(name);
+                quantityText.setText(quantity);
+                priceText.setText(price);
+            }
+            cursor.close();
         }
     }
 
