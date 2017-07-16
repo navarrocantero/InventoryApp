@@ -53,7 +53,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             Cursor cursor = getContentResolver().query(currentProductUri, null, null, null, null);
 
             if (cursor != null && cursor.moveToFirst()) {
-
                 String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
                 String quantity = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY));
                 String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));

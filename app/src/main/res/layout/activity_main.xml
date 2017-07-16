@@ -4,12 +4,13 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#f8e6cc"
+    android:background="@color/colorBackground"
     tools:context=".MainActivity">
 
     <ListView
         android:id="@+id/list_product"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_margin="10dp" />
 
 </LinearLayout>
