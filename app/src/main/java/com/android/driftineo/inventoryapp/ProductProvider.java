@@ -60,14 +60,15 @@ public class ProductProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
+        cursor.setNotificationUri(getContext().getContentResolver(),uri);
         return cursor;
     }
 
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
-       final int match = uriMatcher.match(uri);
-        switch (match){
+        final int match = uriMatcher.match(uri);
+        switch (match) {
             case PRODUCTS:
                 return ProductContract.ProductEntry.CONTENT_LIST_TYPE;
             case PRODUCT_ID:
@@ -83,15 +84,13 @@ public class ProductProvider extends ContentProvider {
         switch (match) {
             case PRODUCTS:
                 return insertProduct(uri, contentValues);
+
             default:
                 throw new IllegalArgumentException("Insertion is not supported for " + uri);
         }
+
     }
 
-    @Override
-    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
-    }
 
     private Uri insertProduct(Uri uri, ContentValues contentValues) {
 
@@ -119,6 +118,7 @@ public class ProductProvider extends ContentProvider {
             Log.e(LOG_TAG, "Failed to insert row for " + uri);
             return null;
         }
+        getContext().getContentResolver().notifyChange(uri, null);
 
         return ContentUris.withAppendedId(uri, id);
 
@@ -127,6 +127,8 @@ public class ProductProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues contentValues, String selection,
                       String[] selectionArgs) {
+
+
         final int match = uriMatcher.match(uri);
         switch (match) {
             case PRODUCTS:
@@ -138,6 +140,8 @@ public class ProductProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Update is not supported for " + uri);
         }
+
+
     }
 
     private int updateProduct(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
@@ -162,15 +166,45 @@ public class ProductProvider extends ContentProvider {
                 throw new IllegalArgumentException("Product requires a price");
             }
         }
-        if (contentValues.size()== 0){
-            return  0;
+        if (contentValues.size() == 0) {
+            return 0;
         }
         SQLiteDatabase db = productDbHelper.getWritableDatabase();
 
-        return db.update(ProductContract.ProductEntry.TABLE_NAME,contentValues,selection,selectionArgs);
+        int rowsUpdated = db.update(ProductContract.ProductEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+
+        if (rowsUpdated != 0) {
+
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return db.update(ProductContract.ProductEntry.TABLE_NAME, contentValues, selection, selectionArgs);
 
 
     }
 
+    @Override
+    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        SQLiteDatabase database = productDbHelper.getWritableDatabase();
 
+        int rowsDeleted;
+        final int match = uriMatcher.match(uri);
+        switch (match) {
+            case PRODUCTS:
+                rowsDeleted = database.delete(ProductContract.ProductEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case PRODUCT_ID:
+                selection = ProductContract.ProductEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                rowsDeleted = database.delete(ProductContract.ProductEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            default:
+                throw new IllegalArgumentException("Deletion is not supported for " + uri);
+
+        }
+        if (rowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return rowsDeleted;
+    }
 }

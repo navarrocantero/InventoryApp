@@ -5,20 +5,29 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="@string/inventary_string"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    <provider
-        android:name=".ProductProvider"
-        android:authorities="com.android.driftineo.inventoryapp"
-        android:exported="false" />
+
+        <activity
+            android:name=".EditorActivity"
+            android:label="@string/edit_string"
+            android:theme="@style/AppTheme">
+
+        </activity>
+
+        <provider
+            android:name=".ProductProvider"
+            android:authorities="com.android.driftineo.inventoryapp"
+            android:exported="false" />
     </application>
+
 </manifest>

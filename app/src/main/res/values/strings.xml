@@ -1,3 +1,24 @@
 <resources>
     <string name="app_name">InventoryApp</string>
+    <string name="inventary_string">Inventory</string>
+    <string name="edit_string">Edit Menu</string>
+    <string name="action_save">Save</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="hint_product_name">product name here</string>
+    <string name="hint_product_quantity">quantity</string>
+    <string name="hint_product_price">price</string>
+
+
+    <string name="action_insert_test_data">Insert Test Data</string>
+    <string name="action_insert_data">Insert Data</string>
+    <string name="action_insert_data_sucess">Insert Data sucess</string>
+    <string name="action_insert_data_failed">Insert Data failed</string>
+    <string name="action_delete_all_entries">Delete ALL</string>
+    <string name="editor_activity">Editor</string>
+    <string name="action_insert_name_empty">name cant be empty</string>
+    <string name="action_insert_quantity_empty">quantity cant be empty</string>
+    <string name="action_insert_price_empty">price cant be empty</string>
+    <string name="action_insert_data_one_element_empty">one element is empty</string>
+    <string name="action_insert_data_more_than_one_element_empty">one or more elements are empty</string>
 </resources>
