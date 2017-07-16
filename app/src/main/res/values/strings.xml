@@ -12,13 +12,28 @@
 
     <string name="action_insert_test_data">Insert Test Data</string>
     <string name="action_insert_data">Insert Data</string>
+    <string name="action_insert_data_cancel">Insert Data cancelled</string>
     <string name="action_insert_data_sucess">Insert Data sucess</string>
     <string name="action_insert_data_failed">Insert Data failed</string>
     <string name="action_delete_all_entries">Delete ALL</string>
-    <string name="editor_activity">Editor</string>
+    <string name="activity_editor">Editor</string>
+    <string name="activity_add_product">Add product</string>
     <string name="action_insert_name_empty">name cant be empty</string>
     <string name="action_insert_quantity_empty">quantity cant be empty</string>
     <string name="action_insert_price_empty">price cant be empty</string>
     <string name="action_insert_data_one_element_empty">one element is empty</string>
     <string name="action_insert_data_more_than_one_element_empty">one or more elements are empty</string>
+    <string name="action_update_data_cancel">update data cancelled</string>
+    <string name="editor_update_product_failed">update product failed</string>
+    <string name="editor_update_product_successful">update product succes</string>
+    <string name="editor_delete_pet_successful">Product deleted</string>
+    <string name="editor_delete_pet_failed">deleting product error</string>
+    <string name="delete_dialog_msg">Delete this product?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="unsaved_changes_dialog_msg">not saves</string>
+    <string name="discard">discard</string>
+    <string name="keep_editing">keep</string>
+    <string name="editor_delete_product_failed">delete product failed</string>
+    <string name="editor_delete_product_successful">delete product successful</string>
 </resources>

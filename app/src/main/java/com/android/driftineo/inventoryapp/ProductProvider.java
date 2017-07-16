@@ -20,6 +20,7 @@ public class ProductProvider extends ContentProvider {
 
     private static final int PRODUCTS = 100;
     private static final int PRODUCT_ID = 101;
+    private static final String blankString = "";
 
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -60,7 +61,7 @@ public class ProductProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
-        cursor.setNotificationUri(getContext().getContentResolver(),uri);
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
 
@@ -134,7 +135,7 @@ public class ProductProvider extends ContentProvider {
             case PRODUCTS:
                 return updateProduct(uri, contentValues, selection, selectionArgs);
             case PRODUCT_ID:
-                selection = ProductContract.ProductEntry.COLUMN_PRODUCT_NAME + "=?";
+                selection = ProductContract.ProductEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 return updateProduct(uri, contentValues, selection, selectionArgs);
             default:
@@ -146,44 +147,44 @@ public class ProductProvider extends ContentProvider {
 
     private int updateProduct(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
 
+        int count = 0;
+
         if (contentValues.containsKey(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME)) {
             String productName = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME);
-            if (productName == null) {
-                throw new IllegalArgumentException("Product requires a name");
+            if (productName.equals(blankString)) {
+                count++;
             }
         }
 
         if (contentValues.containsKey(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY)) {
             String productQuantity = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
-            if (productQuantity == null) {
-                throw new IllegalArgumentException("Product requires a quantity");
+            if (productQuantity.equals(blankString)) {
+                count++;
             }
         }
 
         if (contentValues.containsKey(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE)) {
             String productPrice = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE);
-            if (productPrice == null) {
-                throw new IllegalArgumentException("Product requires a price");
+            if (productPrice.equals(blankString)) {
+                count++;
             }
         }
-        if (contentValues.size() == 0) {
+
+        if (contentValues.size() == 0 || count == 3) {
             return 0;
         }
         SQLiteDatabase db = productDbHelper.getWritableDatabase();
-
         int rowsUpdated = db.update(ProductContract.ProductEntry.TABLE_NAME, contentValues, selection, selectionArgs);
-
         if (rowsUpdated != 0) {
-
             getContext().getContentResolver().notifyChange(uri, null);
         }
         return db.update(ProductContract.ProductEntry.TABLE_NAME, contentValues, selection, selectionArgs);
 
-
     }
 
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[]
+            selectionArgs) {
         SQLiteDatabase database = productDbHelper.getWritableDatabase();
 
         int rowsDeleted;
