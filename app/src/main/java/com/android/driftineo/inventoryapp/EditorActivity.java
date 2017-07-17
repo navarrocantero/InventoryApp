@@ -14,6 +14,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -26,9 +28,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private static final int EXISTING_PRODUCT_LOADER = 0;
     private Uri currentProductUri;
+
     private EditText nameEditText;
     private EditText quantityText;
     private EditText priceText;
+
     private static String blankSpace = "";
     private String title;
 
@@ -37,10 +41,83 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         setContentView(R.layout.activity_editor);
         Intent intent = getIntent();
 
-        currentProductUri = intent.getData();
+        final ContentValues contentValues = new ContentValues();
+        Button addButon = (Button) findViewById(R.id.addButtonID);
+        Button lessButton = (Button) findViewById(R.id.lessButtonId);
 
+
+        /**
+         * Function to remove a single product inside the editor view
+         */
+        lessButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Cursor cursor = getContentResolver().query(currentProductUri, null, null, null, null);
+
+                if (cursor != null && cursor.moveToFirst()) {
+
+                    String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
+                    String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
+                    String id = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry._ID));
+
+                    int quantityValor = Integer.valueOf(String.valueOf(quantityText.getText()));
+                    quantityValor--;
+                    if (quantityValor > 0) {
+
+                        String quantityString = Integer.valueOf(quantityValor).toString();
+                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, name);
+                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityString);
+                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
+                        String selection = ProductContract.ProductEntry._ID + "=?";
+
+                        String[] selectionArgs = new String[]{String.valueOf(id)};
+                        int rowsUpdated = getContentResolver().update(currentProductUri, contentValues, selection, selectionArgs);
+                        quantityText.setText(quantityString);
+                    }
+                }
+                cursor.close();
+            }
+        });
+/**
+ *  Function to add a single product inside the editor view
+ */
+        addButon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Cursor cursor = getContentResolver().query(currentProductUri, null, null, null, null);
+
+                if (cursor != null && cursor.moveToFirst()) {
+
+                    String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
+                    String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
+                    String id = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry._ID));
+
+                    int quantityValor = Integer.valueOf(String.valueOf(quantityText.getText()));
+                    quantityValor++;
+                    if (quantityValor > 0) {
+
+                        String quantityString = Integer.valueOf(quantityValor).toString();
+                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, name);
+                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityString);
+                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
+                        String selection = ProductContract.ProductEntry._ID + "=?";
+
+                        String[] selectionArgs = new String[]{String.valueOf(id)};
+                        int rowsUpdated = getContentResolver().update(currentProductUri, contentValues, selection, selectionArgs);
+                        quantityText.setText(quantityString);
+                    }
+                }
+                cursor.close();
+            }
+        });
+
+        currentProductUri = intent.getData();
         nameEditText = (EditText) findViewById(R.id.productNameEdit);
+
         quantityText = (EditText) findViewById(R.id.productQuantityEdit);
+
         priceText = (EditText) findViewById(R.id.productPriceEdit);
 
         if (currentProductUri == null) {
