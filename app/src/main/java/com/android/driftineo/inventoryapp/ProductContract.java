@@ -44,6 +44,6 @@ public class ProductContract {
 
         public final static String COLUMN_PRODUCT_PHONE = "phone";
 
-        public final static String COLUMN_PRODUCT_MAIL = "mail";
+        public final static String COLUMN_PRODUCT_EMAIL = "mail";
     }
 }

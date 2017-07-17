@@ -40,7 +40,11 @@ public class ProductAdapter extends CursorAdapter {
         final String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
         final String id = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry._ID));
 
-
+//        ImageView imageView = (ImageView) view.findViewById(R.id.firstImage);
+//        if(!imageView.equals(null)){
+//
+//            imageView.setVisibility(View.GONE);
+//        }
         productNameTextView.setText(productName);
         productQuantityTextView.setText(productQuantity);
         productPriceTextView.setText(price);

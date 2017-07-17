@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -27,15 +28,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     ProductAdapter productAdapter;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         ListView listView = (ListView) findViewById(R.id.list_product);
         productAdapter = new ProductAdapter(this, null);
         listView.setAdapter(productAdapter);
-//        View emptyView = findViewById(R.id.item);
-//        listView.setEmptyView(emptyView);
+        ImageView imageView = (ImageView) findViewById(R.id.firstImage);
+        listView.setEmptyView(imageView);
+
+
         getLoaderManager().initLoader(THIS_LOADER, null, this);
 
 
@@ -55,15 +60,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private void addNewProducts() {
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(ProductEntry.COLUMN_PRODUCT_NAME, "cola");
-        contentValues.put(ProductEntry.COLUMN_PRODUCT_PRICE, "20");
-        contentValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, "20");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_NAME, "Android galaxy");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_PRICE, "200");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, "43");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_EMAIL, "samsung@samsung.ko");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_PHONE, "66666666");
+        Uri newUri = getContentResolver().insert(ProductEntry.CONTENT_URI, contentValues);
 
-        for (int i = 0; i < 5; i++) {
-            Uri newUri = getContentResolver().insert(ProductEntry.CONTENT_URI, contentValues);
-        }
-
-
+        contentValues = new ContentValues();
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_NAME, "Android Apple");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_PRICE, "1000");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, "100");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_EMAIL, "apple@samsung.ko");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_PHONE, "66666666");
+        newUri = getContentResolver().insert(ProductEntry.CONTENT_URI, contentValues);
     }
 
     @Override
@@ -104,12 +114,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+        ImageView imageView = (ImageView) findViewById(R.id.firstImage);
         switch (item.getItemId()) {
             case R.id.action_insert_dummy_data:
                 addNewProducts();
                 break;
             case R.id.action_insert_data:
+                imageView.setVisibility(View.GONE);
                 Intent intent = new Intent(MainActivity.this, EditorActivity.class);
                 startActivity(intent);
                 break;
@@ -122,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
     private void deleteAllProduct() {
-
+        ImageView imageView = (ImageView) findViewById(R.id.firstImage);
         int rowsDeleted = getContentResolver().delete(ProductEntry.CONTENT_URI, null, null);
         if (rowsDeleted == 0) {
             // If no rows were deleted, then there was an error with the delete.
@@ -133,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             Toast.makeText(this, getString(R.string.editor_delete_product_successful),
                     Toast.LENGTH_SHORT).show();
         }
+        imageView.setVisibility(View.VISIBLE);
     }
 
     private void showDeleteConfirmationDialog() {

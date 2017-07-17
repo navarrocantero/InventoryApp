@@ -99,6 +99,9 @@ public class ProductProvider extends ContentProvider {
         String productName = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME);
         String productQuantity = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
         String productPrice = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE);
+        String productEmail = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL);
+        String productPhone = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE);
+
 
 
         if (productName == null) {
@@ -108,6 +111,14 @@ public class ProductProvider extends ContentProvider {
             throw new IllegalArgumentException("Product requires a quantity");
         }
         if (productPrice == null) {
+            throw new IllegalArgumentException("Product requires a price");
+        }
+
+        if (productEmail == null) {
+            throw new IllegalArgumentException("Product requires a price");
+        }
+
+        if (productPhone == null) {
             throw new IllegalArgumentException("Product requires a price");
         }
 
@@ -170,7 +181,21 @@ public class ProductProvider extends ContentProvider {
             }
         }
 
-        if (contentValues.size() == 0 || count == 3) {
+        if (contentValues.containsKey(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE)) {
+            String productPhone = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE);
+            if (productPhone.equals(blankString)) {
+                count++;
+            }
+        }
+
+        if (contentValues.containsKey(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE)) {
+            String productEmail = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL);
+            if (productEmail.equals(blankString)) {
+                count++;
+            }
+        }
+
+        if (contentValues.size() == 0 || count == 5) {
             return 0;
         }
         SQLiteDatabase db = productDbHelper.getWritableDatabase();

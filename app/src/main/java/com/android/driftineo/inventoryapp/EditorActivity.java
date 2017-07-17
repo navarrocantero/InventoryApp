@@ -30,8 +30,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private Uri currentProductUri;
 
     private EditText nameEditText;
-    private EditText quantityText;
-    private EditText priceText;
+    private EditText quantityEditText;
+    private EditText priceEditText;
+    private EditText emailEditText;
+    private EditText phoneEditText;
 
     private static String blankSpace = "";
     private String title;
@@ -44,6 +46,28 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         final ContentValues contentValues = new ContentValues();
         Button addButon = (Button) findViewById(R.id.addButtonID);
         Button lessButton = (Button) findViewById(R.id.lessButtonId);
+        final Button phoneButton = (Button) findViewById(R.id.callButonID);
+
+
+        /**
+         * Function to make the call Intent
+         */
+        phoneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Cursor cursor = getContentResolver().query(currentProductUri, null, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+
+                    String phoneNumber = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
+                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phoneNumber, null));
+                    startActivity(intent);
+                }
+                cursor.close();
+            }
+        });
+
+
 
 
         /**
@@ -59,9 +83,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
                     String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
                     String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
+                    String phone = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
+                    String email = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL));
                     String id = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry._ID));
 
-                    int quantityValor = Integer.valueOf(String.valueOf(quantityText.getText()));
+                    int quantityValor = Integer.valueOf(String.valueOf(quantityEditText.getText()));
                     quantityValor--;
                     if (quantityValor > 0) {
 
@@ -69,14 +95,18 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                         contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, name);
                         contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityString);
                         contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
+
+                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, phone);
+                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, email);
                         String selection = ProductContract.ProductEntry._ID + "=?";
 
                         String[] selectionArgs = new String[]{String.valueOf(id)};
                         int rowsUpdated = getContentResolver().update(currentProductUri, contentValues, selection, selectionArgs);
-                        quantityText.setText(quantityString);
+                        quantityEditText.setText(quantityString);
                     }
+
+                    cursor.close();
                 }
-                cursor.close();
             }
         });
 /**
@@ -92,9 +122,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
                     String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
                     String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
+                    String phone = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
+                    String email = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL));
                     String id = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry._ID));
 
-                    int quantityValor = Integer.valueOf(String.valueOf(quantityText.getText()));
+                    int quantityValor = Integer.valueOf(String.valueOf(quantityEditText.getText()));
                     quantityValor++;
                     if (quantityValor > 0) {
 
@@ -102,23 +134,27 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                         contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, name);
                         contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityString);
                         contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
+                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, phone);
+                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, email);
                         String selection = ProductContract.ProductEntry._ID + "=?";
 
                         String[] selectionArgs = new String[]{String.valueOf(id)};
                         int rowsUpdated = getContentResolver().update(currentProductUri, contentValues, selection, selectionArgs);
-                        quantityText.setText(quantityString);
+                        quantityEditText.setText(quantityString);
                     }
+
+                    cursor.close();
                 }
-                cursor.close();
             }
         });
 
         currentProductUri = intent.getData();
         nameEditText = (EditText) findViewById(R.id.productNameEdit);
+        quantityEditText = (EditText) findViewById(R.id.productQuantityEdit);
+        priceEditText = (EditText) findViewById(R.id.productPriceEdit);
+        phoneEditText = (EditText) findViewById(R.id.productPhoneEditText);
+        emailEditText = (EditText) findViewById(R.id.productEmailEdit);
 
-        quantityText = (EditText) findViewById(R.id.productQuantityEdit);
-
-        priceText = (EditText) findViewById(R.id.productPriceEdit);
 
         if (currentProductUri == null) {
             setTitle(getString(R.string.activity_add_product));
@@ -133,9 +169,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
                 String quantity = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY));
                 String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
+                String phone = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
+                String email = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL));
+
+
                 nameEditText.setText(name);
-                quantityText.setText(quantity);
-                priceText.setText(price);
+                quantityEditText.setText(quantity);
+                priceEditText.setText(price);
+                phoneEditText.setText(phone);
+                emailEditText.setText(email);
+
             }
             cursor.close();
         }
@@ -146,8 +189,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         boolean bol = true;
         String nameString = nameEditText.getText().toString().trim();
-        String quantityString = quantityText.getText().toString().trim();
-        String priceString = priceText.getText().toString().trim();
+        String quantityString = quantityEditText.getText().toString().trim();
+        String priceString = priceEditText.getText().toString().trim();
+        String phoneString = phoneEditText.getText().toString().trim();
+        String emailString = emailEditText.getText().toString().trim();
+
         ContentValues contentValues = new ContentValues();
         int count = 0;
 
@@ -167,6 +213,19 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         } else {
             count++;
         }
+
+        if (!phoneString.equals(blankSpace)) {
+            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE, phoneString);
+        } else {
+            count++;
+        }
+
+        if (!emailString.equals(blankSpace)) {
+            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL, emailString);
+        } else {
+            count++;
+        }
+
 
         // Add a product especific code part
 
@@ -247,7 +306,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 ProductContract.ProductEntry._ID,
                 ProductContract.ProductEntry.COLUMN_PRODUCT_NAME,
                 ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY,
-                ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE};
+                ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE,
+                ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE,
+                ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL,};
 
         return new CursorLoader(this,
                 ProductContract.ProductEntry.CONTENT_URI,
@@ -269,13 +330,20 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             int quantityColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
             int priceColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE);
 
+            int phoneColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE);
+            int emailColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL);
+
             String name = cursor.getString(nameColumnIndex);
             String quantity = cursor.getString(quantityColumnIndex);
             String price = cursor.getString(priceColumnIndex);
+            String phone = cursor.getString(phoneColumnIndex);
+            String email = cursor.getString(emailColumnIndex);
 
             nameEditText.setText(name);
-            quantityText.setText(quantity);
-            priceText.setText(price);
+            quantityEditText.setText(quantity);
+            priceEditText.setText(price);
+            phoneEditText.setText(phone);
+            emailEditText.setText(email);
         }
     }
 
@@ -284,8 +352,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
 
         nameEditText.setText(blankSpace);
-        quantityText.setText(blankSpace);
-        priceText.setText(blankSpace);
+        quantityEditText.setText(blankSpace);
+        priceEditText.setText(blankSpace);
+        phoneEditText.setText(blankSpace);
+        emailEditText.setText(blankSpace);
     }
 
     /**
@@ -307,25 +377,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         finish();
     }
 
-    private void showUnsavedChangesDialog(DialogInterface.OnClickListener discardButtonClickListener) {
-        // Create an AlertDialog.Builder and set the message, and click listeners
-        // for the postivie and negative buttons on the dialog.
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(R.string.unsaved_changes_dialog_msg);
-        builder.setPositiveButton(R.string.discard, discardButtonClickListener);
-        builder.setNegativeButton(R.string.keep_editing, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-            }
-        });
-
-        // Create and show the AlertDialog
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
     /**
      * Prompt the user to confirm that they want to delete this pet.
      */
@@ -336,22 +387,20 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         builder.setMessage(R.string.delete_dialog_msg);
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // User clicked the "Delete" button, so delete the pet.
+
                 deleteProduct();
 
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // User clicked the "Cancel" button, so dismiss the dialog
-                // and continue editing the pet.
                 if (dialog != null) {
                     dialog.dismiss();
                 }
             }
         });
 
-        // Create and show the AlertDialog
+
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
 
@@ -360,7 +409,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        // If this is a new pet, hide the "Delete" menu item.
         if (currentProductUri == null) {
             MenuItem menuItem = menu.findItem(R.id.action_delete);
             menuItem.setVisible(false);

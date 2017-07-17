@@ -145,11 +145,12 @@
 
             <EditText
                 android:id="@+id/productPhoneEditText"
-                android:layout_width="150dp"
+                android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:hint="@string/hint_supplier_data_phone"
-                android:inputType="number" />
+                android:inputType="number"
+                android:textSize="20sp"/> />
 
             <Space
                 android:layout_width="wrap_content"
@@ -157,7 +158,7 @@
                 android:layout_weight="1" />
 
             <Button
-                android:id="@+id/callIntentButton"
+                android:id="@+id/callButonID"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -173,23 +174,17 @@
 
             <EditText
                 android:id="@+id/productEmailEdit"
-                android:layout_width="150dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:hint="@string/hint_supplier_data_mail"
-                android:inputType="textEmailAddress" />
+                android:inputType="textEmailAddress"
+                android:textSize="20sp"/>
 
             <Space
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
-
-            <Button
-                android:id="@+id/emailIntentButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/intent_email" />
 
         </LinearLayout>
 
