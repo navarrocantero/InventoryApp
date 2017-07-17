@@ -1,6 +1,8 @@
 package com.android.driftineo.inventoryapp;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -34,4 +36,33 @@ public class ProductDbHelper extends SQLiteOpenHelper {
         // The database is still at version 1, so there's nothing to do be done here.
     }
 
+    public void updateItem(long currentItemId, int quantity) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantity);
+        String selection = ProductContract.ProductEntry._ID + "=?";
+        String[] selectionArgs = new String[] { String.valueOf(currentItemId) };
+        db.update(ProductContract.ProductEntry.TABLE_NAME,
+                values, selection, selectionArgs);
+    }
+
+    public Cursor updateProducts() {
+        SQLiteDatabase db = getReadableDatabase();
+        String[] projection = {
+                ProductContract.ProductEntry._ID,
+                ProductContract.ProductEntry.COLUMN_PRODUCT_NAME,
+                ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY,
+                ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE};
+
+        Cursor cursor = db.query(
+                ProductContract.ProductEntry.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        return cursor;
+    }
 }

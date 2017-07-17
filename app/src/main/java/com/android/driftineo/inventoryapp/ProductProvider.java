@@ -208,4 +208,6 @@ public class ProductProvider extends ContentProvider {
 
         return rowsDeleted;
     }
+
+
 }

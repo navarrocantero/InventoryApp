@@ -34,7 +34,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         ListView listView = (ListView) findViewById(R.id.list_product);
         productAdapter = new ProductAdapter(this, null);
         listView.setAdapter(productAdapter);
+//        View emptyView = findViewById(R.id.item);
+//        listView.setEmptyView(emptyView);
         getLoaderManager().initLoader(THIS_LOADER, null, this);
+
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -159,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         alertDialog.show();
 
     }
+
 
 }
 

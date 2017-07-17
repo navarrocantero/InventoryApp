@@ -6,6 +6,10 @@
     <string name="supplier_data">Supplier Data</string>
     <string name="hint_supplier_data_phone">Phone Number</string>
     <string name="hint_supplier_data_mail">Email</string>
+    <string name="intent_email">Send</string>
+    <string name="intent_call">Call</string>
+    <string name="sell">Sell</string>
+    <string name="only_name">Name</string>
 
     <string name="inventary_string">Inventory</string>
     <string name="edit_string">Edit Menu</string>
