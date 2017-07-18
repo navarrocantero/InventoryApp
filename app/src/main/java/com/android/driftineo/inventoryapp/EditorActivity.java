@@ -43,12 +43,14 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private EditText emailEditText;
     private EditText phoneEditText;
     private ImageView productImage;
-    private Uri aux;
+    private byte[] photoByteArray;
+    private byte[] blob;
     private PhotoUtils photoUtils;
     private static String blankSpace = "";
     private String title;
     final private int LESS = -1;
     final private int ADD = 1;
+    String[] proyection = {ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE, ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE, ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL};
 
 
     protected void onCreate(Bundle bundle) {
@@ -59,7 +61,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         photoUtils = new PhotoUtils(this);
 
         final ContentValues contentValues = new ContentValues();
-        productImage = (ImageView) findViewById(R.id.productImage);
         final Button addButon = (Button) findViewById(R.id.addButtonID);
         final Button lessButton = (Button) findViewById(R.id.lessButtonId);
         final Button phoneButton = (Button) findViewById(R.id.callButonID);
@@ -91,11 +92,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             @Override
             public void onClick(View v) {
 
-                Cursor cursor = getContentResolver().query(currentProductUri, null, null, null, null);
+                Cursor cursor = getContentResolver().query(currentProductUri, proyection, null, null, null);
                 if (cursor != null && cursor.moveToFirst()) {
 
-                    String phoneNumber = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
-                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phoneNumber, null));
+                    int phoneNumber = cursor.getInt(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
+                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", String.valueOf(phoneNumber), null));
                     startActivity(intent);
                 }
                 cursor.close();
@@ -138,18 +139,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
             if (cursor != null && cursor.moveToFirst()) {
                 String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
-                String quantity = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY));
+                int quantity = cursor.getInt(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY));
                 String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
-                String phone = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
+                int phone = cursor.getInt(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
                 String email = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL));
-                String image = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE));
-                Uri uri = Uri.parse(image);
+                blob = cursor.getBlob(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE));
                 nameEditText.setText(name);
-                quantityEditText.setText(quantity);
+                quantityEditText.setText("" + quantity);
                 priceEditText.setText(price);
-                phoneEditText.setText(phone);
+                phoneEditText.setText("" + phone);
                 emailEditText.setText(email);
-                productImage.setImageURI(uri);
+                productImage.setImageBitmap(photoUtils.getImageFromBlob(blob));
             }
             cursor.close();
         }
@@ -157,67 +157,68 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
 
     private boolean insertProduct() {
-        Cursor cursor = getContentResolver().query(currentProductUri, null, null, null, null);
+
         boolean bol = false;
         String nameString;
-        String quantityString;
+        int quantityString;
         String priceString;
-        String phoneString;
+        int phoneString;
         String emailString;
-        String image;
+
         ContentValues contentValues = new ContentValues();
         int count = 0;
 
+        nameString = nameEditText.getText().toString().trim();
+        quantityString = Integer.parseInt(quantityEditText.getText().toString().trim());
+        priceString = priceEditText.getText().toString().trim();
+        phoneString = Integer.parseInt(phoneEditText.getText().toString().trim());
+        emailString = emailEditText.getText().toString().trim();
+
+        Cursor cursor = getContentResolver().query(currentProductUri, null, null, null, null);
+
         if (cursor != null && cursor.moveToFirst()) {
-
-            nameString = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
-            quantityString = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY));
-            priceString = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
-            phoneString = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
-            emailString = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL));
-            image = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE));
-            Uri uri = Uri.parse(image);
-
-
-            if (!nameString.equals(blankSpace)) {
-                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, nameString);
-            } else {
-                count++;
-            }
-
-            if (!quantityString.equals(blankSpace)) {
-                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityString);
-            } else {
-                count++;
-            }
-            if (!priceString.equals(blankSpace)) {
-                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, priceString);
-            } else {
-                count++;
-            }
-
-            if (!phoneString.equals(blankSpace)) {
-                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE, phoneString);
-            } else {
-                count++;
-            }
-
-            if (!emailString.equals(blankSpace)) {
-                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL, emailString);
-            } else {
-                count++;
-            }
-
-            if (!image.equals(blankSpace)) {
-                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE, image.toString());
-            } else {
-                count++;
-            }
-            if (count != 0) {
-                Toast.makeText(this, getString(R.string.action_insert_data_more_than_one_element_empty), Toast.LENGTH_LONG).show();
-            }
+            blob = cursor.getBlob(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE));
+          photoByteArray = blob;
         }
 
+        if (nameString.isEmpty()) {
+            count++;
+        } else {
+            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, nameString);
+        }
+
+        if (quantityString <= 0) {
+            count++;
+        } else {
+            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityString);
+        }
+
+        if (priceString.isEmpty()) {
+            count++;
+        } else {
+            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, priceString);
+        }
+
+        if (phoneString == 0) {
+            count++;
+        } else {
+            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE, phoneString);
+        }
+
+        if (emailString.isEmpty()) {
+            count++;
+        } else {
+            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL, emailString);
+        }
+        if (photoByteArray.toString().isEmpty()) {
+            count++;
+        } else {
+            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE, photoByteArray);
+        }
+
+        if (count != 0) {
+            Toast.makeText(this, getString(R.string.action_insert_data_more_than_one_element_empty), Toast.LENGTH_LONG).show();
+        }
 
         // Add a product especific code part
 
@@ -245,7 +246,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                     return false;
                 }
             } else {
-
 
                 Toast.makeText(this, getString(R.string.editor_update_product_failed),
                         Toast.LENGTH_SHORT).show();
@@ -421,7 +421,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             String quantity = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY));
             String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
             String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
-            String image = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE));
+            byte[] image = cursor.getBlob(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE));
             String phone = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
             String email = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL));
             String id = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry._ID));
@@ -519,17 +519,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     public void getImage(Uri uri) {
         Bitmap bounds = photoUtils.getImage(uri);
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE, uri.toString());
-        getContentResolver().update(currentProductUri, contentValues, null, null);
-        if (bounds != null) {
-            setImage(bounds);
-        }
+        setImage(bounds);
+        photoByteArray = photoUtils.getBytes(bounds);
     }
 
     public void setImage(Bitmap image) {
         productImage.setImageBitmap(image);
     }
 }
-
-

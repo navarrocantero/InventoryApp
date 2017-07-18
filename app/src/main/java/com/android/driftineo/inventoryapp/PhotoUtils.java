@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v4.net.ConnectivityManagerCompat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class PhotoUtils {
         }
         return File.createTempFile(part, ext, tempDir);
     }
-@ConnectivityManagerCompat.RestrictBackgroundStatus
+    @ConnectivityManagerCompat.RestrictBackgroundStatus
     public Bitmap getImage(Uri uri) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -92,4 +93,15 @@ public class PhotoUtils {
 
         return bitmap;
     }
+
+    public byte[] getBytes(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+        return stream.toByteArray();
+    }
+
+    public Bitmap getImageFromBlob(byte[] image) {
+        return BitmapFactory.decodeByteArray(image, 0, image.length);
+    }
+
 }
