@@ -48,8 +48,8 @@ public class ProductProvider extends ContentProvider {
         int match = uriMatcher.match(uri);
         switch (match) {
             case PRODUCTS:
-                cursor = sqLiteDatabase.query(ProductContract.ProductEntry.TABLE_NAME, projection, selection, selectionArgs,
-                        null, null, sortOrder);
+                cursor = sqLiteDatabase.query(ProductContract.ProductEntry.TABLE_NAME, projection, null, null,
+                        null, null, null);
                 break;
             case PRODUCT_ID:
                 selection = ProductContract.ProductEntry._ID + "=?";
@@ -189,7 +189,7 @@ public class ProductProvider extends ContentProvider {
         }
 
         if (contentValues.containsKey(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE)) {
-            String productImage = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE);
+            byte[] productImage = contentValues.getAsByteArray(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE);
             if (productImage.equals(blankString)) {
                 count++;
             }

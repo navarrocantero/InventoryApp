@@ -153,6 +153,7 @@
                 android:id="@+id/photoButton"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                android:visibility="invisible"
                 android:text="@string/photo" />
         </LinearLayout>
 

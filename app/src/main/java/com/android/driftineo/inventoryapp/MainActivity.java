@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     ProductAdapter productAdapter;
     private byte[] photoByteArray;
     private PhotoUtils photoUtils;
+    private Uri photoName;
 
 
     @Override
@@ -41,8 +42,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         listView.setAdapter(productAdapter);
         ImageView imageView = (ImageView) findViewById(R.id.firstImage);
         listView.setEmptyView(imageView);
-
-
         getLoaderManager().initLoader(THIS_LOADER, null, this);
 
 
@@ -52,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this, EditorActivity.class);
                 Uri uri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, id);
+                intent.putExtra("photoArray",photoByteArray);
                 intent.setData(uri);
                 startActivity(intent);
             }
@@ -120,7 +120,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 ProductEntry._ID,
                 ProductEntry.COLUMN_PRODUCT_NAME,
                 ProductEntry.COLUMN_PRODUCT_QUANTITY,
-                ProductEntry.COLUMN_PRODUCT_PRICE};
+                ProductEntry.COLUMN_PRODUCT_PRICE,
+                ProductEntry.COLUMN_PRODUCT_IMAGE,
+                ProductEntry.COLUMN_PRODUCT_PHONE,
+                ProductEntry.COLUMN_PRODUCT_EMAIL};
 
         return new CursorLoader(this,
                 ProductEntry.CONTENT_URI,

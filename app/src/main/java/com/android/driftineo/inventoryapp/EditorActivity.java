@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -59,15 +60,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         Intent intent = getIntent();
         setContentView(R.layout.activity_editor);
         photoUtils = new PhotoUtils(this);
-
         final ContentValues contentValues = new ContentValues();
         final Button addButon = (Button) findViewById(R.id.addButtonID);
         final Button lessButton = (Button) findViewById(R.id.lessButtonId);
         final Button phoneButton = (Button) findViewById(R.id.callButonID);
         final Button photoBUtton = (Button) findViewById(R.id.photoButton);
-
         currentProductUri = intent.getData();
-
         nameEditText = (EditText) findViewById(R.id.productNameEdit);
         quantityEditText = (EditText) findViewById(R.id.productQuantityEdit);
         priceEditText = (EditText) findViewById(R.id.productPriceEdit);
@@ -131,6 +129,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             title = getString(R.string.activity_add_product);
             lessButton.setVisibility(View.GONE);
             addButon.setVisibility(View.GONE);
+            photoBUtton.setVisibility(View.VISIBLE);
         } else {
             setTitle(getString(R.string.activity_editor));
             title = getString(R.string.activity_editor);
@@ -174,13 +173,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         phoneString = Integer.parseInt(phoneEditText.getText().toString().trim());
         emailString = emailEditText.getText().toString().trim();
 
-        Cursor cursor = getContentResolver().query(currentProductUri, null, null, null, null);
-
-        if (cursor != null && cursor.moveToFirst()) {
-            blob = cursor.getBlob(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE));
-          photoByteArray = blob;
-        }
-
         if (nameString.isEmpty()) {
             count++;
         } else {
@@ -210,10 +202,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         } else {
             contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL, emailString);
         }
-        if (photoByteArray.toString().isEmpty()) {
+        if (photoByteArray==null) {
             count++;
         } else {
-            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE, photoByteArray);
+
         }
 
         if (count != 0) {
@@ -228,7 +220,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 return true;
 
             } else if (count == 0) {
-
+                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE, photoByteArray);
                 Uri uri = getContentResolver().insert(ProductContract.ProductEntry.CONTENT_URI, contentValues);
                 Toast.makeText(this, getString(R.string.action_insert_data_sucess), Toast.LENGTH_LONG).show();
             }
@@ -237,13 +229,25 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // Edit a product especific code part
 
         else {
-
-            if (count == 0) {
-                int rowsAffected = getContentResolver().update(currentProductUri, contentValues, null, null);
-                if (rowsAffected == 1) {
-                    Toast.makeText(this, getString(R.string.editor_update_product_successful),
-                            Toast.LENGTH_SHORT).show();
-                    return false;
+            if (count == 0 || count ==1) {
+                if(photoByteArray==null){
+                    Bitmap bitmap = ((BitmapDrawable)productImage.getDrawable()).getBitmap();
+                    Log.i("Inventory","byteArray"+photoByteArray);
+                    photoByteArray = photoUtils.getBytes(bitmap);
+                    contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE, photoByteArray);
+                    int rowsAffected = getContentResolver().update(currentProductUri, contentValues, null, null);
+                    if (rowsAffected == 1) {
+                        Toast.makeText(this, getString(R.string.editor_update_product_successful),
+                                Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                } else {
+                    int rowsAffected = getContentResolver().update(currentProductUri, contentValues, null, null);
+                    if (rowsAffected == 1) {
+                        Toast.makeText(this, getString(R.string.editor_update_product_successful),
+                                Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
                 }
             } else {
 
@@ -267,12 +271,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_save:
-                if (!insertProduct()) {
-                    finish();
+                    if(insertProduct()){
+                        finish();
+                    }
                     return true;
-                } else {
-                    break;
-                }
             case R.id.action_cancel:
                 if (title.equals(getString(R.string.activity_editor))) {
                     Toast.makeText(this, getString(R.string.action_update_data_cancel), Toast.LENGTH_LONG).show();
