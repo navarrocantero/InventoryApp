@@ -37,17 +37,13 @@ public class ProductAdapter extends CursorAdapter {
         final ContentValues contenvalues = new ContentValues();
         final String productName = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
         final String productQuantity = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY));
-        final String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
-        final String id = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry._ID));
+        final String productPrice = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
+        final String productId = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry._ID));
 
-//        ImageView imageView = (ImageView) view.findViewById(R.id.firstImage);
-//        if(!imageView.equals(null)){
-//
-//            imageView.setVisibility(View.GONE);
-//        }
         productNameTextView.setText(productName);
         productQuantityTextView.setText(productQuantity);
-        productPriceTextView.setText(price);
+        productPriceTextView.setText(productPrice);
+
 
 
         sellButton.setOnClickListener(new View.OnClickListener() {
@@ -56,14 +52,15 @@ public class ProductAdapter extends CursorAdapter {
 
                 int quantity = Integer.valueOf(productQuantity);
                 if (quantity > 0) {
+
                     quantity--;
 
                     contenvalues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, productName);
                     contenvalues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantity);
-                    contenvalues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
+                    contenvalues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, productPrice);
                     String selection = ProductContract.ProductEntry._ID + "=?";
 
-                    String[] selectionArgs = new String[]{String.valueOf(id)};
+                    String[] selectionArgs = new String[]{String.valueOf(productId)};
                     int rowsUpdated = context.getContentResolver().update(ProductContract.ProductEntry.CONTENT_URI,
                             contenvalues, selection, selectionArgs);
 

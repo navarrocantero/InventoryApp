@@ -60,19 +60,48 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private void addNewProducts() {
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(ProductEntry.COLUMN_PRODUCT_NAME, "Android galaxy");
-        contentValues.put(ProductEntry.COLUMN_PRODUCT_PRICE, "200");
-        contentValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, "43");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_NAME, "Galaxy S7");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_PRICE, "800");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, "6");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_IMAGE, "android.resource://com.android.driftineo.inventoryapp/" + R.drawable.galaxysseven);
         contentValues.put(ProductEntry.COLUMN_PRODUCT_EMAIL, "samsung@samsung.ko");
-        contentValues.put(ProductEntry.COLUMN_PRODUCT_PHONE, "66666666");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_PHONE, "345335");
         Uri newUri = getContentResolver().insert(ProductEntry.CONTENT_URI, contentValues);
 
         contentValues = new ContentValues();
-        contentValues.put(ProductEntry.COLUMN_PRODUCT_NAME, "Android Apple");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_NAME, "Iphone 7");
         contentValues.put(ProductEntry.COLUMN_PRODUCT_PRICE, "1000");
-        contentValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, "100");
-        contentValues.put(ProductEntry.COLUMN_PRODUCT_EMAIL, "apple@samsung.ko");
-        contentValues.put(ProductEntry.COLUMN_PRODUCT_PHONE, "66666666");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, "13");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_IMAGE, "android.resource://com.android.driftineo.inventoryapp/" + R.drawable.iphoneseven);
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_EMAIL, "apple@iphone.ch");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_PHONE, "65464523");
+        newUri = getContentResolver().insert(ProductEntry.CONTENT_URI, contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_NAME, "Samsung J7");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_PRICE, "120");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, "45");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_IMAGE, "android.resource://com.android.driftineo.inventoryapp/" + R.drawable.samsungj);
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_EMAIL, "samsung@samsung.ko");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_PHONE, "78965468");
+        newUri = getContentResolver().insert(ProductEntry.CONTENT_URI, contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_NAME, "Lg g24  ");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_PRICE, "324");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, "5");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_IMAGE, "android.resource://com.android.driftineo.inventoryapp/" + R.drawable.movil_lg_stylus_ii_52_16gb_quad_c_1331843_l);
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_EMAIL, "lifeis@good.com");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_PHONE, "45783489");
+        newUri = getContentResolver().insert(ProductEntry.CONTENT_URI, contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_NAME, "Nokia 3310");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_PRICE, "160");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, "8");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_IMAGE, "android.resource://com.android.driftineo.inventoryapp/" + R.drawable.nokia3310);
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_EMAIL, "nokia@nokia.com");
+        contentValues.put(ProductEntry.COLUMN_PRODUCT_PHONE, "4234234");
         newUri = getContentResolver().insert(ProductEntry.CONTENT_URI, contentValues);
     }
 

@@ -1,23 +1,33 @@
 package com.android.driftineo.inventoryapp;
 
+import android.Manifest;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
+
+import java.io.File;
 
 /**
  * Created by driftineo on 15/7/17.
@@ -26,27 +36,56 @@ import android.widget.Toast;
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
 
-    private static final int EXISTING_PRODUCT_LOADER = 0;
+    private static final int ACTIVITY_SELECT_IMAGE = 1020;
+    private static final int ACTIVITY_SELECT_FROM_CAMERA = 1040;
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
     private Uri currentProductUri;
-
+    private AlertDialog _photoDialog;
     private EditText nameEditText;
     private EditText quantityEditText;
     private EditText priceEditText;
     private EditText emailEditText;
     private EditText phoneEditText;
-
+    private ImageView productImage;
+    private Uri aux;
+    private PhotoUtils photoUtils;
     private static String blankSpace = "";
     private String title;
+    final private int LESS = -1;
+    final private int ADD = 1;
+
 
     protected void onCreate(Bundle bundle) {
+
         super.onCreate(bundle);
-        setContentView(R.layout.activity_editor);
         Intent intent = getIntent();
+        setContentView(R.layout.activity_editor);
+        photoUtils = new PhotoUtils(this);
 
         final ContentValues contentValues = new ContentValues();
-        Button addButon = (Button) findViewById(R.id.addButtonID);
-        Button lessButton = (Button) findViewById(R.id.lessButtonId);
+        productImage = (ImageView) findViewById(R.id.productImage);
+        final Button addButon = (Button) findViewById(R.id.addButtonID);
+        final Button lessButton = (Button) findViewById(R.id.lessButtonId);
         final Button phoneButton = (Button) findViewById(R.id.callButonID);
+        final Button photoBUtton = (Button) findViewById(R.id.photoButton);
+
+        currentProductUri = intent.getData();
+
+        nameEditText = (EditText) findViewById(R.id.productNameEdit);
+        quantityEditText = (EditText) findViewById(R.id.productQuantityEdit);
+        priceEditText = (EditText) findViewById(R.id.productPriceEdit);
+        phoneEditText = (EditText) findViewById(R.id.productPhoneEditText);
+        emailEditText = (EditText) findViewById(R.id.productEmailEdit);
+        productImage = (ImageView) findViewById(R.id.productImage);
+
+        photoBUtton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!getPhotoDialog().isShowing() && !isFinishing())
+                    getPhotoDialog().show();
+
+            }
+        });
 
 
         /**
@@ -68,45 +107,14 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         });
 
 
-
-
         /**
          * Function to remove a single product inside the editor view
          */
         lessButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Cursor cursor = getContentResolver().query(currentProductUri, null, null, null, null);
-
-                if (cursor != null && cursor.moveToFirst()) {
-
-                    String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
-                    String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
-                    String phone = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
-                    String email = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL));
-                    String id = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry._ID));
-
-                    int quantityValor = Integer.valueOf(String.valueOf(quantityEditText.getText()));
-                    quantityValor--;
-                    if (quantityValor > 0) {
-
-                        String quantityString = Integer.valueOf(quantityValor).toString();
-                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, name);
-                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityString);
-                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
-
-                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, phone);
-                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, email);
-                        String selection = ProductContract.ProductEntry._ID + "=?";
-
-                        String[] selectionArgs = new String[]{String.valueOf(id)};
-                        int rowsUpdated = getContentResolver().update(currentProductUri, contentValues, selection, selectionArgs);
-                        quantityEditText.setText(quantityString);
-                    }
-
-                    cursor.close();
-                }
+                modifyQuantity(cursor, contentValues, LESS);
             }
         });
 /**
@@ -115,50 +123,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         addButon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Cursor cursor = getContentResolver().query(currentProductUri, null, null, null, null);
-
-                if (cursor != null && cursor.moveToFirst()) {
-
-                    String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
-                    String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
-                    String phone = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
-                    String email = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL));
-                    String id = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry._ID));
-
-                    int quantityValor = Integer.valueOf(String.valueOf(quantityEditText.getText()));
-                    quantityValor++;
-                    if (quantityValor > 0) {
-
-                        String quantityString = Integer.valueOf(quantityValor).toString();
-                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, name);
-                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityString);
-                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
-                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, phone);
-                        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, email);
-                        String selection = ProductContract.ProductEntry._ID + "=?";
-
-                        String[] selectionArgs = new String[]{String.valueOf(id)};
-                        int rowsUpdated = getContentResolver().update(currentProductUri, contentValues, selection, selectionArgs);
-                        quantityEditText.setText(quantityString);
-                    }
-
-                    cursor.close();
-                }
+                modifyQuantity(cursor, contentValues, ADD);
             }
         });
-
-        currentProductUri = intent.getData();
-        nameEditText = (EditText) findViewById(R.id.productNameEdit);
-        quantityEditText = (EditText) findViewById(R.id.productQuantityEdit);
-        priceEditText = (EditText) findViewById(R.id.productPriceEdit);
-        phoneEditText = (EditText) findViewById(R.id.productPhoneEditText);
-        emailEditText = (EditText) findViewById(R.id.productEmailEdit);
 
 
         if (currentProductUri == null) {
             setTitle(getString(R.string.activity_add_product));
             title = getString(R.string.activity_add_product);
+            lessButton.setVisibility(View.GONE);
+            addButon.setVisibility(View.GONE);
         } else {
             setTitle(getString(R.string.activity_editor));
             title = getString(R.string.activity_editor);
@@ -171,13 +146,28 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
                 String phone = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
                 String email = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL));
+                String image = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE));
+                Uri uri = Uri.parse(image);
 
+                if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+
+
+                    Bitmap bitmap = photoUtils.getImage(uri);
+
+                }
 
                 nameEditText.setText(name);
                 quantityEditText.setText(quantity);
                 priceEditText.setText(price);
                 phoneEditText.setText(phone);
                 emailEditText.setText(email);
+                productImage.setImageURI(uri);
+
 
             }
             cursor.close();
@@ -187,12 +177,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private boolean insertProduct() {
 
+
         boolean bol = true;
         String nameString = nameEditText.getText().toString().trim();
         String quantityString = quantityEditText.getText().toString().trim();
         String priceString = priceEditText.getText().toString().trim();
         String phoneString = phoneEditText.getText().toString().trim();
         String emailString = emailEditText.getText().toString().trim();
+
+        Uri imageString = Uri.parse(currentProductUri.toString());
+
 
         ContentValues contentValues = new ContentValues();
         int count = 0;
@@ -224,6 +218,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL, emailString);
         } else {
             count++;
+        }
+
+        if (!imageString.equals(blankSpace)) {
+            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE, imageString.toString());
+        } else {
+            count++;
+        }
+        if (count != 0) {
+            Toast.makeText(this, getString(R.string.action_insert_data_more_than_one_element_empty), Toast.LENGTH_LONG).show();
         }
 
 
@@ -307,6 +310,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 ProductContract.ProductEntry.COLUMN_PRODUCT_NAME,
                 ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY,
                 ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE,
+                ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE,
                 ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE,
                 ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL,};
 
@@ -329,21 +333,23 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             int nameColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME);
             int quantityColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
             int priceColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE);
-
             int phoneColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE);
             int emailColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL);
+            int imageColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE);
 
             String name = cursor.getString(nameColumnIndex);
             String quantity = cursor.getString(quantityColumnIndex);
             String price = cursor.getString(priceColumnIndex);
             String phone = cursor.getString(phoneColumnIndex);
             String email = cursor.getString(emailColumnIndex);
+            String image = cursor.getString(imageColumnIndex);
 
             nameEditText.setText(name);
             quantityEditText.setText(quantity);
             priceEditText.setText(price);
             phoneEditText.setText(phone);
             emailEditText.setText(email);
+            productImage.setImageBitmap(photoUtils.getImage(Uri.parse(image)));
         }
     }
 
@@ -356,6 +362,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         priceEditText.setText(blankSpace);
         phoneEditText.setText(blankSpace);
         emailEditText.setText(blankSpace);
+        productImage.setImageBitmap(null);
     }
 
     /**
@@ -416,4 +423,119 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         return true;
     }
 
+    public void modifyQuantity(Cursor cursor, ContentValues contentValues, int operation) {
+
+
+        if (cursor != null && cursor.moveToFirst()) {
+
+            String quantity = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY));
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
+            String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
+            String phone = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
+            String email = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL));
+            String id = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry._ID));
+
+            int quantityValor = Integer.valueOf(quantity);
+            quantityValor = quantityValor + operation;
+
+            if (quantityValor > 0) {
+
+                String quantityString = Integer.valueOf(quantityValor).toString();
+
+                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, name);
+                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityValor);
+                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
+                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE, phone);
+                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL, email);
+
+                String selection = ProductContract.ProductEntry._ID + "=?";
+
+                String[] selectionArgs = new String[]{String.valueOf(id)};
+
+
+                int rowsUpdated = getContentResolver().update(currentProductUri, contentValues, selection, selectionArgs);
+                quantityEditText.setText(quantityString);
+            }
+
+
+            cursor.close();
+        }
+    }
+
+    private AlertDialog getPhotoDialog() {
+
+        if (_photoDialog == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.photo_source);
+            builder.setPositiveButton(R.string.camera, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+                    File photo = null;
+                    try {
+                        // place where to store camera taken picture
+                        photo = PhotoUtils.createTemporaryFile("picture", ".jpg", EditorActivity.this);
+                        photo.delete();
+                    } catch (Exception e) {
+                        Log.v(getClass().getSimpleName(), "Can't create file to take picture!");
+                    }
+                    currentProductUri = Uri.fromFile(photo);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, currentProductUri);
+                    startActivityForResult(intent, ACTIVITY_SELECT_FROM_CAMERA);
+                }
+
+            });
+            builder.setNegativeButton(R.string.gallery, new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+
+                    galleryIntent.setType("image/*");
+                    File photo = null;
+                    try {
+                        photo = PhotoUtils.createTemporaryFile("picture", ".jpg", EditorActivity.this);
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    currentProductUri = Uri.fromFile(photo);
+                    startActivityForResult(galleryIntent, ACTIVITY_SELECT_IMAGE);
+                }
+
+            });
+            _photoDialog = builder.create();
+
+        }
+        return _photoDialog;
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ACTIVITY_SELECT_IMAGE && resultCode == RESULT_OK) {
+            currentProductUri = data.getData();
+            getImage(currentProductUri);
+
+        } else if (requestCode == ACTIVITY_SELECT_FROM_CAMERA
+                && resultCode == RESULT_OK) {
+            getImage(currentProductUri);
+        }
+    }
+
+    public void getImage(Uri uri) {
+        Bitmap bounds = photoUtils.getImage(uri);
+
+        if (bounds != null) {
+            setImage(bounds);
+        }
+    }
+
+    public void setImage(Bitmap image) {
+        productImage.setImageBitmap(image);
+    }
 }
+
+

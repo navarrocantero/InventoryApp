@@ -99,6 +99,7 @@ public class ProductProvider extends ContentProvider {
         String productName = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME);
         String productQuantity = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
         String productPrice = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE);
+        String productImage = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE);
         String productEmail = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL);
         String productPhone = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE);
 
@@ -107,19 +108,25 @@ public class ProductProvider extends ContentProvider {
         if (productName == null) {
             throw new IllegalArgumentException("Product requires a name");
         }
+
         if (productQuantity == null) {
             throw new IllegalArgumentException("Product requires a quantity");
         }
+
         if (productPrice == null) {
             throw new IllegalArgumentException("Product requires a price");
         }
 
+        if (productImage == null) {
+            throw new IllegalArgumentException("Product requires a image");
+        }
+
         if (productEmail == null) {
-            throw new IllegalArgumentException("Product requires a price");
+            throw new IllegalArgumentException("Product requires a email");
         }
 
         if (productPhone == null) {
-            throw new IllegalArgumentException("Product requires a price");
+            throw new IllegalArgumentException("Product requires a phone");
         }
 
 
@@ -181,6 +188,13 @@ public class ProductProvider extends ContentProvider {
             }
         }
 
+        if (contentValues.containsKey(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE)) {
+            String productImage = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE);
+            if (productImage.equals(blankString)) {
+                count++;
+            }
+        }
+
         if (contentValues.containsKey(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE)) {
             String productPhone = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE);
             if (productPhone.equals(blankString)) {
@@ -188,14 +202,14 @@ public class ProductProvider extends ContentProvider {
             }
         }
 
-        if (contentValues.containsKey(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE)) {
+        if (contentValues.containsKey(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL)) {
             String productEmail = contentValues.getAsString(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL);
             if (productEmail.equals(blankString)) {
                 count++;
             }
         }
 
-        if (contentValues.size() == 0 || count == 5) {
+        if (contentValues.size() == 0 || count == 6) {
             return 0;
         }
         SQLiteDatabase db = productDbHelper.getWritableDatabase();

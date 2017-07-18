@@ -15,11 +15,11 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/productName"
+            android:id="@+id/productQuantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:textColor="@color/rojoUno"
+            android:textColor="@color/colorVerdeclaro"
             android:textSize="20sp" />
 
         <Space
@@ -27,12 +27,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
+
+
         <TextView
-            android:id="@+id/productQuantity"
+            android:id="@+id/productName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:textColor="@color/colorVerdeclaro"
+            android:textColor="@color/rojoUno"
             android:textSize="20sp" />
 
         <Space
