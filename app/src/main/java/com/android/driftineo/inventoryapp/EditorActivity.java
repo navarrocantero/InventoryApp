@@ -158,54 +158,56 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private boolean insertProduct() {
 
         boolean bol = false;
-        String nameString;
-        int quantityString;
-        String priceString;
-        int phoneString;
-        String emailString;
+
 
         ContentValues contentValues = new ContentValues();
         int count = 0;
 
+        String nameString;
+        String quantityString;
+        String priceString;
+        String phoneString;
+        String emailString;
+
+
+
+        quantityString = quantityEditText.getText().toString().trim();
+        phoneString = phoneEditText.getText().toString().trim();
         nameString = nameEditText.getText().toString().trim();
-        quantityString = Integer.parseInt(quantityEditText.getText().toString().trim());
         priceString = priceEditText.getText().toString().trim();
-        phoneString = Integer.parseInt(phoneEditText.getText().toString().trim());
         emailString = emailEditText.getText().toString().trim();
 
-        if (nameString.isEmpty()) {
+        if (nameString.equals("")) {
             count++;
         } else {
             contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, nameString);
         }
 
-        if (quantityString <= 0) {
+        if (quantityString.equals("")) {
             count++;
         } else {
             contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityString);
         }
 
-        if (priceString.isEmpty()) {
+        if (priceString.equals("")) {
             count++;
         } else {
             contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, priceString);
         }
 
-        if (phoneString == 0) {
+        if (phoneString.equals("")) {
             count++;
         } else {
             contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE, phoneString);
         }
 
-        if (emailString.isEmpty()) {
+        if (emailString.equals("")) {
             count++;
         } else {
             contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL, emailString);
         }
-        if (photoByteArray==null) {
+        if(photoByteArray == null){
             count++;
-        } else {
-
         }
 
         if (count != 0) {
@@ -217,22 +219,22 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         if (title.equals(getString(R.string.activity_add_product))) {
             if (count != 0) {
                 Toast.makeText(this, getString(R.string.action_insert_data_more_than_one_element_empty), Toast.LENGTH_LONG).show();
-                return true;
+                return false;
 
             } else if (count == 0) {
                 contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE, photoByteArray);
                 Uri uri = getContentResolver().insert(ProductContract.ProductEntry.CONTENT_URI, contentValues);
                 Toast.makeText(this, getString(R.string.action_insert_data_sucess), Toast.LENGTH_LONG).show();
             }
-            bol = false;
+            bol = true;
         }
         // Edit a product especific code part
 
         else {
-            if (count == 0 || count ==1) {
-                if(photoByteArray==null){
-                    Bitmap bitmap = ((BitmapDrawable)productImage.getDrawable()).getBitmap();
-                    Log.i("Inventory","byteArray"+photoByteArray);
+            if (count == 0 || count == 1) {
+                if (photoByteArray == null) {
+                    Bitmap bitmap = ((BitmapDrawable) productImage.getDrawable()).getBitmap();
+                    Log.i("Inventory", "byteArray" + photoByteArray);
                     photoByteArray = photoUtils.getBytes(bitmap);
                     contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE, photoByteArray);
                     int rowsAffected = getContentResolver().update(currentProductUri, contentValues, null, null);
@@ -241,6 +243,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                                 Toast.LENGTH_SHORT).show();
                         return false;
                     }
+                    return false;
                 } else {
                     int rowsAffected = getContentResolver().update(currentProductUri, contentValues, null, null);
                     if (rowsAffected == 1) {
@@ -271,10 +274,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_save:
-                    if(insertProduct()){
-                        finish();
-                    }
-                    return true;
+                if (insertProduct()) {
+                    finish();
+                }
+                return true;
             case R.id.action_cancel:
                 if (title.equals(getString(R.string.activity_editor))) {
                     Toast.makeText(this, getString(R.string.action_update_data_cancel), Toast.LENGTH_LONG).show();
