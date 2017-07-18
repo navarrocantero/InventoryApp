@@ -1,21 +1,17 @@
 package com.android.driftineo.inventoryapp;
 
-import android.Manifest;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -148,27 +144,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 String email = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL));
                 String image = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE));
                 Uri uri = Uri.parse(image);
-
-                if (ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.READ_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-
-
-                    Bitmap bitmap = photoUtils.getImage(uri);
-
-                }
-
                 nameEditText.setText(name);
                 quantityEditText.setText(quantity);
                 priceEditText.setText(price);
                 phoneEditText.setText(phone);
                 emailEditText.setText(email);
                 productImage.setImageURI(uri);
-
-
             }
             cursor.close();
         }
@@ -176,57 +157,65 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
 
     private boolean insertProduct() {
-
-
-        boolean bol = true;
-        String nameString = nameEditText.getText().toString().trim();
-        String quantityString = quantityEditText.getText().toString().trim();
-        String priceString = priceEditText.getText().toString().trim();
-        String phoneString = phoneEditText.getText().toString().trim();
-        String emailString = emailEditText.getText().toString().trim();
-
-        Uri imageString = Uri.parse(currentProductUri.toString());
-
-
+        Cursor cursor = getContentResolver().query(currentProductUri, null, null, null, null);
+        boolean bol = false;
+        String nameString;
+        String quantityString;
+        String priceString;
+        String phoneString;
+        String emailString;
+        String image;
         ContentValues contentValues = new ContentValues();
         int count = 0;
 
-        if (!nameString.equals(blankSpace)) {
-            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, nameString);
-        } else {
-            count++;
-        }
+        if (cursor != null && cursor.moveToFirst()) {
 
-        if (!quantityString.equals(blankSpace)) {
-            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityString);
-        } else {
-            count++;
-        }
-        if (!priceString.equals(blankSpace)) {
-            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, priceString);
-        } else {
-            count++;
-        }
+            nameString = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
+            quantityString = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY));
+            priceString = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
+            phoneString = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
+            emailString = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL));
+            image = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE));
+            Uri uri = Uri.parse(image);
 
-        if (!phoneString.equals(blankSpace)) {
-            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE, phoneString);
-        } else {
-            count++;
-        }
 
-        if (!emailString.equals(blankSpace)) {
-            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL, emailString);
-        } else {
-            count++;
-        }
+            if (!nameString.equals(blankSpace)) {
+                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, nameString);
+            } else {
+                count++;
+            }
 
-        if (!imageString.equals(blankSpace)) {
-            contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE, imageString.toString());
-        } else {
-            count++;
-        }
-        if (count != 0) {
-            Toast.makeText(this, getString(R.string.action_insert_data_more_than_one_element_empty), Toast.LENGTH_LONG).show();
+            if (!quantityString.equals(blankSpace)) {
+                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityString);
+            } else {
+                count++;
+            }
+            if (!priceString.equals(blankSpace)) {
+                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, priceString);
+            } else {
+                count++;
+            }
+
+            if (!phoneString.equals(blankSpace)) {
+                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE, phoneString);
+            } else {
+                count++;
+            }
+
+            if (!emailString.equals(blankSpace)) {
+                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL, emailString);
+            } else {
+                count++;
+            }
+
+            if (!image.equals(blankSpace)) {
+                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE, image.toString());
+            } else {
+                count++;
+            }
+            if (count != 0) {
+                Toast.makeText(this, getString(R.string.action_insert_data_more_than_one_element_empty), Toast.LENGTH_LONG).show();
+            }
         }
 
 
@@ -349,7 +338,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             priceEditText.setText(price);
             phoneEditText.setText(phone);
             emailEditText.setText(email);
-            productImage.setImageBitmap(photoUtils.getImage(Uri.parse(image)));
+            productImage.setImageURI(Uri.parse(image));
         }
     }
 
@@ -368,6 +357,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     /**
      * Perform the deletion of the pet in the database.
      */
+
     private void deleteProduct() {
         if (currentProductUri != null) {
             int rowsDeleted = getContentResolver().delete(currentProductUri, null, null);
@@ -431,6 +421,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             String quantity = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY));
             String name = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME));
             String price = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE));
+            String image = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE));
             String phone = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE));
             String email = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL));
             String id = cursor.getString(cursor.getColumnIndexOrThrow(ProductContract.ProductEntry._ID));
@@ -446,6 +437,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityValor);
                 contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE, price);
                 contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PHONE, phone);
+                contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE, image);
                 contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_EMAIL, email);
 
                 String selection = ProductContract.ProductEntry._ID + "=?";
@@ -527,7 +519,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     public void getImage(Uri uri) {
         Bitmap bounds = photoUtils.getImage(uri);
-
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE, uri.toString());
+        getContentResolver().update(currentProductUri, contentValues, null, null);
         if (bounds != null) {
             setImage(bounds);
         }
